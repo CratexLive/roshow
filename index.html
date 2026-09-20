@@ -36,7 +36,10 @@
               url: "https://dd-stream.vercel.app/download?path=6aaf377d5d2099c80a47e4c2"
             }
           };
-          this.currentQual = "1080p";
+
+          // URL parameter se current quality read karega ya default 1080p rakhega
+          const urlParams = new URLSearchParams(window.location.search);
+          this.currentQual = urlParams.get('qual') || "1080p";
         }
 
         connectedCallback() {
@@ -46,7 +49,7 @@
         }
 
         render() {
-          const qData = this.qualities[this.currentQual];
+          const qData = this.qualities[this.currentQual] || this.qualities["1080p"];
 
           const plyrStyleLink = document.createElement('link');
           plyrStyleLink.rel = 'stylesheet';
@@ -347,38 +350,13 @@
             if (overlay3) overlay3.classList.remove('show');
           });
 
+          // Quality Change pr Page Refresh hone ka logic
           this.shadow.querySelectorAll('.q-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
               const selectedQual = e.target.getAttribute('data-quality');
-              this.currentQual = selectedQual;
-              const qData = this.qualities[selectedQual];
-
-              this.shadow.querySelectorAll('.q-btn').forEach(b => b.classList.remove('active'));
-              e.target.classList.add('active');
-
-              const downloadBtn = this.shadow.getElementById('btn-gallery-download');
-              if (selectedQual === '1080p') {
-                downloadBtn.style.display = 'flex';
-              } else {
-                downloadBtn.style.display = 'none';
+              if (selectedQual !== this.currentQual) {
+                window.location.search = `?qual=${selectedQual}`;
               }
-
-              const videoEl = this.shadow.getElementById('main-video');
-              const currentTime = videoEl.currentTime;
-              const isPlaying = !videoEl.paused;
-
-              if (this.plyrPlayer) {
-                this.plyrPlayer.source = {
-                  type: 'video',
-                  sources: [{ src: qData.url, type: 'video/mp4', size: 1080 }]
-                };
-              } else {
-                videoEl.src = qData.url;
-                videoEl.load();
-              }
-
-              videoEl.currentTime = currentTime;
-              if (isPlaying) videoEl.play().catch(() => {});
             });
           });
 
