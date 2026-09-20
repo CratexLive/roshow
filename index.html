@@ -89,10 +89,18 @@
             .video-meta-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
             .video-title-block h3 { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
             .video-title-block p { font-size: 14px; color: var(--text-muted); }
-            .action-buttons { display: flex; gap: 10px; }
+            
+            .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
             .btn-action { display: flex; align-items: center; gap: 6px; background: #F4F4F4; border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; color: var(--text-main); cursor: pointer; }
             .btn-action:hover { background: #eaeaea; }
             .btn-action svg { width: 16px; height: 16px; fill: currentColor; }
+
+            /* Download Progress Bar Styles */
+            .download-section { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 10px; }
+            .progress-container { width: 100%; background: #F4F4F4; border-radius: 8px; overflow: hidden; position: relative; height: 24px; border: 1px solid var(--border-color); }
+            .progress-bar { height: 100%; width: 0%; background: linear-gradient(135deg, #0088cc, #006aab); transition: width 0.1s linear; }
+            .progress-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--text-main); mix-blend-mode: difference; }
+
             .content-board-section { background-color: var(--bg-olive); padding: 60px 6%; flex: 1; border-top-left-radius: 30px; border-top-right-radius: 30px; }
             .section-header { text-align: center; margin-bottom: 40px; }
             .section-header h2 { font-size: 28px; font-weight: 700; color: #FFFFFF; margin-bottom: 8px; }
@@ -108,37 +116,13 @@
             .float-tg svg { width: 26px; height: 26px; fill: #fff; }
             
             .overlay, .overlay-2, .overlay-3 { 
-              display: flex; 
-              visibility: hidden; 
-              position: fixed; 
-              inset: 0; 
-              background: rgba(0,0,0,0.6); 
-              backdrop-filter: blur(4px); 
-              z-index: 9000; 
-              justify-content: center; 
-              align-items: center; 
-              padding: 20px; 
-              opacity: 0; 
-              transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+              display: flex; visibility: hidden; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 9000; justify-content: center; align-items: center; padding: 20px; opacity: 0; transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
             }
-            .overlay.show, .overlay-2.show, .overlay-3.show { 
-              visibility: visible; 
-              opacity: 1; 
-            }
+            .overlay.show, .overlay-2.show, .overlay-3.show { visibility: visible; opacity: 1; }
             .popup, .popup-large, .popup-unlock { 
-              background: var(--card-white); 
-              border-radius: 24px; 
-              padding: 30px 24px; 
-              width: 100%; 
-              max-width: 380px; 
-              text-align: center; 
-              box-shadow: 0 20px 40px rgba(0,0,0,0.15); 
-              transform: scale(0.9); 
-              transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
+              background: var(--card-white); border-radius: 24px; padding: 30px 24px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.15); transform: scale(0.9); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
             }
-            .overlay.show .popup, .overlay-2.show .popup-large, .overlay-3.show .popup-unlock { 
-              transform: scale(1); 
-            }
+            .overlay.show .popup, .overlay-2.show .popup-large, .overlay-3.show .popup-unlock { transform: scale(1); }
             .popup h3, .popup-large h3, .popup-unlock h3 { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
             .popup p, .popup-large p, .popup-unlock p { color: var(--text-muted); font-size: 14px; line-height: 1.5; margin-bottom: 20px; }
             .popup-actions { display: flex; gap: 10px; }
@@ -188,8 +172,25 @@
                       <button class="btn-action" id="btn-share">
                         <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"></path></svg>Share
                       </button>
+                      <!-- Gallery Download Button -->
+                      <button class="btn-action" id="btn-gallery-download">
+                        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Download (Gallery)
+                      </button>
                     </div>
                   </div>
+
+                  <!-- YouTube-style Offline Download Section with Progress Bar -->
+                  <div class="download-section">
+                    <button class="btn-action" id="btn-offline" style="width: 100%; justify-content: center;">
+                      <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                      <span id="download-text">Download Offline (App Storage)</span>
+                    </button>
+                    <div class="progress-container" id="progress-container" style="display: none;">
+                      <div class="progress-bar" id="progress-bar"></div>
+                      <span class="progress-text" id="progress-text">0%</span>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
@@ -289,7 +290,6 @@
             if (overlay) overlay.classList.add("show"); 
           }, 4000);
           
-          // 3rd popup after 5 minutes (300,000 milliseconds) with 3-day LocalStorage rule
           setTimeout(() => {
             const lastShown = localStorage.getItem('cricxcrate_popup3_time');
             const now = new Date().getTime();
@@ -320,6 +320,82 @@
             this.goTelegram();
             const overlay3 = this.shadow.getElementById('overlay-3');
             if (overlay3) overlay3.classList.remove('show');
+          });
+
+          // Direct Gallery Download Handler
+          this.shadow.getElementById('btn-gallery-download').addEventListener('click', () => {
+            const epData = this.episodes[this.currentEp];
+            const a = document.createElement('a');
+            a.href = epData.url;
+            a.download = `${epData.title}.mp4`;
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          });
+
+          // YouTube-style Offline App Storage Download Handler with Progress
+          this.shadow.getElementById('btn-offline').addEventListener('click', async () => {
+            const btnText = this.shadow.getElementById('download-text');
+            const progressContainer = this.shadow.getElementById('progress-container');
+            const progressBar = this.shadow.getElementById('progress-bar');
+            const progressText = this.shadow.getElementById('progress-text');
+
+            if (!('caches' in window)) {
+              alert('Offline storage is not supported in this browser.');
+              return;
+            }
+
+            try {
+              btnText.innerText = 'Downloading...';
+              progressContainer.style.display = 'block';
+              progressBar.style.width = '0%';
+              
+              const epData = this.episodes[this.currentEp];
+              const response = await fetch(epData.url);
+              
+              if (!response.ok) throw new Error('Network response failed');
+
+              const total = parseInt(response.headers.get('content-length'), 10);
+              let loaded = 0;
+
+              const reader = response.body.getReader();
+              const chunks = [];
+
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                chunks.push(value);
+                loaded += value.length;
+
+                if (total) {
+                  const percent = Math.round((loaded / total) * 100);
+                  progressBar.style.width = percent + '%';
+                  progressText.innerText = `${percent}%`;
+                } else {
+                  const mbLoaded = (loaded / (1024 * 1024)).toFixed(1);
+                  progressText.innerText = `${mbLoaded} MB`;
+                }
+              }
+
+              const blob = new Blob(chunks);
+              const cache = await caches.open('cricxcrate-offline-videos');
+              await cache.put(epData.url, new Response(blob));
+
+              btnText.innerText = 'Downloaded ✓';
+              progressText.innerText = 'Complete!';
+              
+              setTimeout(() => {
+                progressContainer.style.display = 'none';
+              }, 3000);
+
+            } catch (err) {
+              console.error(err);
+              btnText.innerText = 'Failed';
+              progressText.innerText = 'Error';
+              alert('Download failed. Please check your connection.');
+            }
           });
 
           this.shadow.getElementById('btn-banner-tg').addEventListener('click', () => this.goTelegram());
@@ -368,4 +444,3 @@
   </style>
 </body>
 </html>
-
