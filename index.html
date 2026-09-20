@@ -77,10 +77,10 @@
             }
             * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
             
-            button, .tg-card-btn, .float-tg, .btn-action, .quality-select {
-              transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, opacity 0.2s ease;
+            button, .tg-card-btn, .float-tg, .btn-action, .q-btn {
+              transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, opacity 0.2s ease, color 0.2s ease;
             }
-            button:active, .tg-card-btn:active, .float-tg:active, .btn-action:active {
+            button:active, .tg-card-btn:active, .float-tg:active, .btn-action:active, .q-btn:active {
               transform: scale(0.95);
             }
 
@@ -107,31 +107,30 @@
             .btn-action:hover { background: #eaeaea; }
             .btn-action svg { width: 16px; height: 16px; fill: currentColor; }
 
-            /* Quality Selector Blended Perfectly with Theme Colors */
-            .quality-select-wrap {
+            /* Custom UI Quality Selector Row */
+            .quality-group {
               display: flex;
-              align-items: center;
               gap: 6px;
               background: #F4F4F4;
               border: 1px solid var(--border-color);
-              padding: 10px 14px;
-              border-radius: 12px;
-              font-size: 13px;
-              font-weight: 600;
-              color: var(--text-main);
-              cursor: pointer;
+              padding: 4px;
+              border-radius: 14px;
             }
-            .quality-select-wrap:hover { background: #eaeaea; }
-            .quality-select-wrap svg { width: 16px; height: 16px; fill: currentColor; }
-            .quality-select {
+            .q-btn {
               background: transparent;
               border: none;
+              padding: 8px 12px;
+              border-radius: 10px;
               font-family: 'Inter', sans-serif;
-              font-size: 13px;
+              font-size: 12px;
               font-weight: 600;
-              color: var(--text-main);
-              outline: none;
+              color: var(--text-muted);
               cursor: pointer;
+            }
+            .q-btn.active {
+              background: var(--text-main);
+              color: #FFFFFF;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.1);
             }
 
             .content-board-section { background-color: var(--bg-olive); padding: 60px 6%; flex: 1; border-top-left-radius: 30px; border-top-right-radius: 30px; }
@@ -206,17 +205,16 @@
                         <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>Share
                       </button>
                       
-                      <div class="quality-select-wrap">
-                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-                        <select class="quality-select" id="quality-dropdown">
-                          <option value="360p" ${this.currentQual === '360p' ? 'selected' : ''}>360p</option>
-                          <option value="540p" ${this.currentQual === '540p' ? 'selected' : ''}>540p</option>
-                          <option value="720p" ${this.currentQual === '720p' ? 'selected' : ''}>720p</option>
-                          <option value="1080p" ${this.currentQual === '1080p' ? 'selected' : ''}>1080p</option>
-                        </select>
+                      <!-- Custom Blended Quality Switcher Row -->
+                      <div class="quality-group">
+                        <button class="q-btn ${this.currentQual === '360p' ? 'active' : ''}" data-quality="360p">360p</button>
+                        <button class="q-btn ${this.currentQual === '540p' ? 'active' : ''}" data-quality="540p">540p</button>
+                        <button class="q-btn ${this.currentQual === '720p' ? 'active' : ''}" data-quality="720p">720p</button>
+                        <button class="q-btn ${this.currentQual === '1080p' ? 'active' : ''}" data-quality="1080p">1080p</button>
                       </div>
 
-                      <button class="btn-action" id="btn-gallery-download" style="background: linear-gradient(135deg, #0088cc, #006aab); color: #fff; border: none;">
+                      <!-- Download button dynamically shows only when 1080p is active -->
+                      <button class="btn-action" id="btn-gallery-download" style="background: linear-gradient(135deg, #0088cc, #006aab); color: #fff; border: none; display: ${this.currentQual === '1080p' ? 'flex' : 'none'};">
                         <svg viewBox="0 0 24 24" fill="#fff"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Download Video (1080p)
                       </button>
                     </div>
@@ -352,34 +350,48 @@
             if (overlay3) overlay3.classList.remove('show');
           });
 
-          this.shadow.getElementById('quality-dropdown').addEventListener('change', (e) => {
-            const selectedQual = e.target.value;
-            this.currentQual = selectedQual;
-            const qData = this.qualities[selectedQual];
+          // Custom Quality Button Click Handler
+          this.shadow.querySelectorAll('.q-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const selectedQual = e.target.getAttribute('data-quality');
+              this.currentQual = selectedQual;
+              const qData = this.qualities[selectedQual];
 
-            const videoEl = this.shadow.getElementById('main-video');
-            const currentTime = videoEl.currentTime;
-            const isPlaying = !videoEl.paused;
+              // Update active class on buttons
+              this.shadow.querySelectorAll('.q-btn').forEach(b => b.classList.remove('active'));
+              e.target.classList.add('active');
 
-            if (this.plyrPlayer) {
-              this.plyrPlayer.source = {
-                type: 'video',
-                sources: [{ src: qData.url, type: 'video/mp4', size: 1080 }]
-              };
-            } else {
-              videoEl.src = qData.url;
-              videoEl.load();
-            }
+              // Show or hide download button based on quality selection
+              const downloadBtn = this.shadow.getElementById('btn-gallery-download');
+              if (selectedQual === '1080p') {
+                downloadBtn.style.display = 'flex';
+              } else {
+                downloadBtn.style.display = 'none';
+              }
 
-            videoEl.currentTime = currentTime;
-            if (isPlaying) videoEl.play().catch(() => {});
+              const videoEl = this.shadow.getElementById('main-video');
+              const currentTime = videoEl.currentTime;
+              const isPlaying = !videoEl.paused;
+
+              if (this.plyrPlayer) {
+                this.plyrPlayer.source = {
+                  type: 'video',
+                  sources: [{ src: qData.url, type: 'video/mp4', size: 1080 }]
+                };
+              } else {
+                videoEl.src = qData.url;
+                videoEl.load();
+              }
+
+              videoEl.currentTime = currentTime;
+              if (isPlaying) videoEl.play().catch(() => {});
+            });
           });
 
-          // Always downloads the 1080p version regardless of currently playing streaming quality
           this.shadow.getElementById('btn-gallery-download').addEventListener('click', () => {
-            const hdData = this.qualities["1080p"];
+            const qData = this.qualities["1080p"];
             const a = document.createElement('a');
-            a.href = hdData.url;
+            a.href = qData.url;
             a.download = `Family_Full_House_Rohit_Sharma_1080p.mp4`;
             a.target = '_blank';
             document.body.appendChild(a);
