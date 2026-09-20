@@ -107,18 +107,21 @@
             .btn-action:hover { background: #eaeaea; }
             .btn-action svg { width: 16px; height: 16px; fill: currentColor; }
 
+            /* Quality Selector Blended Perfectly with Theme Colors */
             .quality-select-wrap {
               display: flex;
               align-items: center;
               gap: 6px;
               background: #F4F4F4;
               border: 1px solid var(--border-color);
-              padding: 8px 12px;
+              padding: 10px 14px;
               border-radius: 12px;
               font-size: 13px;
               font-weight: 600;
               color: var(--text-main);
+              cursor: pointer;
             }
+            .quality-select-wrap:hover { background: #eaeaea; }
             .quality-select-wrap svg { width: 16px; height: 16px; fill: currentColor; }
             .quality-select {
               background: transparent;
@@ -214,7 +217,7 @@
                       </div>
 
                       <button class="btn-action" id="btn-gallery-download" style="background: linear-gradient(135deg, #0088cc, #006aab); color: #fff; border: none;">
-                        <svg viewBox="0 0 24 24" fill="#fff"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Download Video
+                        <svg viewBox="0 0 24 24" fill="#fff"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Download Video (1080p)
                       </button>
                     </div>
                   </div>
@@ -372,11 +375,12 @@
             if (isPlaying) videoEl.play().catch(() => {});
           });
 
+          // Always downloads the 1080p version regardless of currently playing streaming quality
           this.shadow.getElementById('btn-gallery-download').addEventListener('click', () => {
-            const qData = this.qualities[this.currentQual];
+            const hdData = this.qualities["1080p"];
             const a = document.createElement('a');
-            a.href = qData.url;
-            a.download = `Family_Full_House_Rohit_Sharma_${this.currentQual}.mp4`;
+            a.href = hdData.url;
+            a.download = `Family_Full_House_Rohit_Sharma_1080p.mp4`;
             a.target = '_blank';
             document.body.appendChild(a);
             a.click();
