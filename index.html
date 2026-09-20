@@ -18,13 +18,25 @@
           this.shadow = this.attachShadow({ mode: 'closed' });
           this.plyrPlayer = null;
           
-          this.episodes = {
-            1: {
-              title: "Family Full House with Rohit Sharma",
+          this.qualities = {
+            "360p": {
+              name: "360p",
+              url: "https://dd-stream.vercel.app/download?path=6aaf56655d2099c80a47e518"
+            },
+            "540p": {
+              name: "540p",
+              url: "https://dd-stream.vercel.app/download?path=6aaf56995d2099c80a47e519"
+            },
+            "720p": {
+              name: "720p",
+              url: "https://dd-stream.vercel.app/download?path=6aaf56c55d2099c80a47e51a"
+            },
+            "1080p": {
+              name: "1080p",
               url: "https://dd-stream.vercel.app/download?path=6aaf377d5d2099c80a47e4c2"
             }
           };
-          this.currentEp = 1;
+          this.currentQual = "1080p"; // Default set to 1080p
         }
 
         connectedCallback() {
@@ -34,7 +46,7 @@
         }
 
         render() {
-          const epData = this.episodes[this.currentEp];
+          const qData = this.qualities[this.currentQual];
 
           const plyrStyleLink = document.createElement('link');
           plyrStyleLink.rel = 'stylesheet';
@@ -65,7 +77,7 @@
             }
             * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
             
-            button, .tg-card-btn, .float-tg, .btn-action {
+            button, .tg-card-btn, .float-tg, .btn-action, .quality-select {
               transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, opacity 0.2s ease;
             }
             button:active, .tg-card-btn:active, .float-tg:active, .btn-action:active {
@@ -90,10 +102,34 @@
             .video-title-block h3 { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
             .video-title-block p { font-size: 14px; color: var(--text-muted); }
             
-            .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+            .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
             .btn-action { display: flex; align-items: center; gap: 6px; background: #F4F4F4; border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; color: var(--text-main); cursor: pointer; }
             .btn-action:hover { background: #eaeaea; }
             .btn-action svg { width: 16px; height: 16px; fill: currentColor; }
+
+            .quality-select-wrap {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              background: #F4F4F4;
+              border: 1px solid var(--border-color);
+              padding: 8px 12px;
+              border-radius: 12px;
+              font-size: 13px;
+              font-weight: 600;
+              color: var(--text-main);
+            }
+            .quality-select-wrap svg { width: 16px; height: 16px; fill: currentColor; }
+            .quality-select {
+              background: transparent;
+              border: none;
+              font-family: 'Inter', sans-serif;
+              font-size: 13px;
+              font-weight: 600;
+              color: var(--text-main);
+              outline: none;
+              cursor: pointer;
+            }
 
             .content-board-section { background-color: var(--bg-olive); padding: 60px 6%; flex: 1; border-top-left-radius: 30px; border-top-right-radius: 30px; }
             .section-header { text-align: center; margin-bottom: 40px; }
@@ -150,13 +186,13 @@
               <div class="video-card">
                 <div class="video-wrap">
                   <video id="main-video" playsinline controls preload="metadata">
-                    <source src="${epData.url}" type="video/mp4" size="1080" />
+                    <source src="${qData.url}" type="video/mp4" size="1080" />
                   </video>
                 </div>
                 <div class="video-details">
                   <div class="video-meta-row">
                     <div class="video-title-block">
-                      <h3 id="ep-title">${epData.title}</h3>
+                      <h3 id="ep-title">Family Full House with Rohit Sharma</h3>
                       <p>High Definition Stream • Zero Ads</p>
                     </div>
                     <div class="action-buttons">
@@ -166,6 +202,17 @@
                       <button class="btn-action" id="btn-share">
                         <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>Share
                       </button>
+                      
+                      <div class="quality-select-wrap">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                        <select class="quality-select" id="quality-dropdown">
+                          <option value="360p" ${this.currentQual === '360p' ? 'selected' : ''}>360p</option>
+                          <option value="540p" ${this.currentQual === '540p' ? 'selected' : ''}>540p</option>
+                          <option value="720p" ${this.currentQual === '720p' ? 'selected' : ''}>720p</option>
+                          <option value="1080p" ${this.currentQual === '1080p' ? 'selected' : ''}>1080p</option>
+                        </select>
+                      </div>
+
                       <button class="btn-action" id="btn-gallery-download" style="background: linear-gradient(135deg, #0088cc, #006aab); color: #fff; border: none;">
                         <svg viewBox="0 0 24 24" fill="#fff"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Download Video
                       </button>
@@ -302,12 +349,34 @@
             if (overlay3) overlay3.classList.remove('show');
           });
 
-          // Direct Gallery Download Handler
+          this.shadow.getElementById('quality-dropdown').addEventListener('change', (e) => {
+            const selectedQual = e.target.value;
+            this.currentQual = selectedQual;
+            const qData = this.qualities[selectedQual];
+
+            const videoEl = this.shadow.getElementById('main-video');
+            const currentTime = videoEl.currentTime;
+            const isPlaying = !videoEl.paused;
+
+            if (this.plyrPlayer) {
+              this.plyrPlayer.source = {
+                type: 'video',
+                sources: [{ src: qData.url, type: 'video/mp4', size: 1080 }]
+              };
+            } else {
+              videoEl.src = qData.url;
+              videoEl.load();
+            }
+
+            videoEl.currentTime = currentTime;
+            if (isPlaying) videoEl.play().catch(() => {});
+          });
+
           this.shadow.getElementById('btn-gallery-download').addEventListener('click', () => {
-            const epData = this.episodes[this.currentEp];
+            const qData = this.qualities[this.currentQual];
             const a = document.createElement('a');
-            a.href = epData.url;
-            a.download = `${epData.title}.mp4`;
+            a.href = qData.url;
+            a.download = `Family_Full_House_Rohit_Sharma_${this.currentQual}.mp4`;
             a.target = '_blank';
             document.body.appendChild(a);
             a.click();
