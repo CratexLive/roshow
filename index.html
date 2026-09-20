@@ -95,6 +95,24 @@
             .btn-action:hover { background: #eaeaea; }
             .btn-action svg { width: 16px; height: 16px; fill: currentColor; }
 
+            /* Offline Download Progress Styles */
+            .offline-container { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 10px; }
+            .progress-wrapper { width: 100%; background: #F4F4F4; border-radius: 10px; overflow: hidden; position: relative; height: 26px; border: 1px solid var(--border-color); display: none; }
+            .progress-fill { height: 100%; width: 0%; background: linear-gradient(135deg, #0088cc, #006aab); transition: width 0.2s ease; }
+            .progress-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #1A1A1A; mix-blend-mode: difference; }
+
+            /* Success Complete Animation Style */
+            @keyframes checkPop {
+              0% { transform: scale(0.8); opacity: 0; }
+              50% { transform: scale(1.1); opacity: 1; }
+              100% { transform: scale(1); opacity: 1; }
+            }
+            .download-success {
+              background: #28a745 !important;
+              color: #fff !important;
+              animation: checkPop 0.4s ease forwards;
+            }
+
             .content-board-section { background-color: var(--bg-olive); padding: 60px 6%; flex: 1; border-top-left-radius: 30px; border-top-right-radius: 30px; }
             .section-header { text-align: center; margin-bottom: 40px; }
             .section-header h2 { font-size: 28px; font-weight: 700; color: #FFFFFF; margin-bottom: 8px; }
@@ -166,17 +184,24 @@
                       <button class="btn-action" id="btn-share">
                         <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>Share
                       </button>
-                      <!-- Gallery Download Button -->
                       <button class="btn-action" id="btn-gallery-download">
                         <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Download (Gallery)
                       </button>
-                      <!-- YouTube-style Offline App Storage Button -->
-                      <button class="btn-action" id="btn-offline" style="background: linear-gradient(135deg, #0088cc, #006aab); color: #fff; border: none;">
-                        <svg viewBox="0 0 24 24" fill="#fff"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                        <span id="download-text">Save Offline (App)</span>
-                      </button>
                     </div>
                   </div>
+
+                  <!-- Offline App Storage Section with Live Percentage & Time Animation -->
+                  <div class="offline-container">
+                    <button class="btn-action" id="btn-offline" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #0088cc, #006aab); color: #fff; border: none;">
+                      <svg viewBox="0 0 24 24" fill="#fff"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                      <span id="download-text">Save Offline (App Storage)</span>
+                    </button>
+                    <div class="progress-wrapper" id="progress-wrapper">
+                      <div class="progress-fill" id="progress-fill"></div>
+                      <span class="progress-label" id="progress-label">Preparing...</span>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
@@ -320,32 +345,83 @@
             document.body.removeChild(a);
           });
 
-          // CORS-Safe YouTube-style Offline Storage Handler
+          // Offline YouTube-style Download with Live Percentage, Time left & Success Animation
           this.shadow.getElementById('btn-offline').addEventListener('click', async () => {
+            const btn = this.shadow.getElementById('btn-offline');
             const btnText = this.shadow.getElementById('download-text');
+            const progressWrapper = this.shadow.getElementById('progress-wrapper');
+            const progressFill = this.shadow.getElementById('progress-fill');
+            const progressLabel = this.shadow.getElementById('progress-label');
+
             if (!('caches' in window)) {
               alert('Offline storage is not supported in this browser.');
               return;
             }
 
             try {
-              btnText.innerText = 'Saving Offline...';
-              const cache = await caches.open('cricxcrate-offline-videos');
-              const epData = this.episodes[this.currentEp];
-              
-              const response = await fetch(epData.url, { mode: 'no-cors' });
-              await cache.put(epData.url, response);
+              btnText.innerText = 'Downloading...';
+              progressWrapper.style.display = 'block';
+              progressFill.style.width = '0%';
+              progressLabel.innerText = 'Connecting... 0%';
 
-              btnText.innerText = 'Saved Offline ✓';
-              alert('Video saved successfully for offline viewing inside the app!');
-              
+              const epData = this.episodes[this.currentEp];
+              const response = await fetch(epData.url);
+              if (!response.ok) throw new Error('Network response failed');
+
+              const contentLength = response.headers.get('content-length');
+              const total = contentLength ? parseInt(contentLength, 10) : 0;
+              let loaded = 0;
+              const startTime = Date.now();
+
+              const reader = response.body.getReader();
+              const chunks = [];
+
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                chunks.push(value);
+                loaded += value.length;
+
+                if (total) {
+                  const percent = Math.round((loaded / total) * 100);
+                  progressFill.style.width = percent + '%';
+
+                  // Calculate estimated time remaining
+                  const elapsedTime = (Date.now() - startTime) / 1000; // seconds
+                  const downloadSpeed = loaded / elapsedTime; // bytes per second
+                  const remainingBytes = total - loaded;
+                  const secondsLeft = downloadSpeed > 0 ? Math.round(remainingBytes / downloadSpeed) : 0;
+
+                  let timeStr = secondsLeft > 60 ? `${Math.ceil(secondsLeft / 60)} min left` : `${secondsLeft} sec left`;
+                  if (secondsLeft <= 1) timeStr = 'Almost done...';
+
+                  progressLabel.innerText = `${percent}% • ${timeStr}`;
+                } else {
+                  const mbLoaded = (loaded / (1024 * 1024)).toFixed(1);
+                  progressLabel.innerText = `Downloaded ${mbLoaded} MB`;
+                }
+              }
+
+              const blob = new Blob(chunks);
+              const cache = await caches.open('cricxcrate-offline-videos');
+              await cache.put(epData.url, new Response(blob));
+
+              // Success Complete Animation State
+              progressWrapper.style.display = 'none';
+              btn.classList.add('download-success');
+              btnText.innerText = 'Saved Offline Successfully ✓';
+
               setTimeout(() => {
-                btnText.innerText = 'Save Offline (App)';
+                btn.classList.remove('download-success');
+                btnText.innerText = 'Save Offline (App Storage)';
               }, 4000);
+
             } catch (err) {
               console.error(err);
-              btnText.innerText = 'Failed';
-              alert('Failed to save offline.');
+              progressWrapper.style.display = 'none';
+              btnText.innerText = 'Save Offline (App Storage)';
+              alert('Download failed due to network restriction or CORS. Try Gallery Download instead.');
             }
           });
 
