@@ -29,15 +29,14 @@
             },
             "720p": {
               name: "720p",
-              url: "https://dd-stream.vercel.app/download?path=6aaf56c55d2099c80a47e51a"
+              url: "https://dd-stream.vercel.app/download?path=6ab086021c00469b455c062d"
             },
             "1080p": {
               name: "1080p",
-              url: "https://dd-stream.vercel.app/download?path=6aaf377d5d2099c80a47e4c2"
+              url: "https://dd-stream.vercel.app/download?path=6ab085fc1c00469b455c062c"
             }
           };
 
-          // URL parameter se current quality read karega ya default 1080p rakhega
           const urlParams = new URLSearchParams(window.location.search);
           this.currentQual = urlParams.get('qual') || "1080p";
         }
@@ -181,7 +180,7 @@
                 <div class="live-badge"><div class="live-dot"></div> HD STREAM</div>
               </div>
               <div class="hero-content">
-                <h1 class="hero-title">Family Full House with Rohit Sharma</h1>
+                <h1 class="hero-title">Family Full House with Rohit Sharma (Ep 2)</h1>
                 <p class="hero-desc">Watch exclusive special feature featuring Rohit Sharma and family in high definition quality.</p>
               </div>
             </div>
@@ -350,7 +349,6 @@
             if (overlay3) overlay3.classList.remove('show');
           });
 
-          // Quality Change pr Page Refresh hone ka logic
           this.shadow.querySelectorAll('.q-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
               const selectedQual = e.target.getAttribute('data-quality');
@@ -364,7 +362,7 @@
             const qData = this.qualities["1080p"];
             const a = document.createElement('a');
             a.href = qData.url;
-            a.download = `Family_Full_House_Rohit_Sharma_1080p.mp4`;
+            a.download = `Family_Full_House_Rohit_Sharma_Ep2_1080p.mp4`;
             a.target = '_blank';
             document.body.appendChild(a);
             a.click();
