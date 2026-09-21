@@ -37,15 +37,8 @@
             }
           };
 
-          const urlParams = new URLSearchParams(window.location.search);
-          this.currentEp = urlParams.get('ep') || "1";
-          
-          const activeEpObj = this.episodes[this.currentEp] || this.episodes["1"];
-          const availableQuals = Object.keys(activeEpObj.qualities);
-          this.currentQual = urlParams.get('qual') || availableQuals[availableQuals.length - 1];
-          if (!activeEpObj.qualities[this.currentQual]) {
-            this.currentQual = availableQuals[availableQuals.length - 1];
-          }
+          this.currentEp = "1";
+          this.currentQual = "1080p";
         }
 
         connectedCallback() {
@@ -55,7 +48,11 @@
         }
 
         render() {
-          const epObj = this.episodes[this.currentEp] || this.episodes["1"];
+          const epObj = this.episodes[this.currentEp];
+          if (!epObj.qualities[this.currentQual]) {
+            const keys = Object.keys(epObj.qualities);
+            this.currentQual = keys[keys.length - 1];
+          }
           const videoUrl = epObj.qualities[this.currentQual];
 
           const plyrStyleLink = document.createElement('link');
@@ -184,7 +181,6 @@
             .popup-unlock { max-width: 420px; border-radius: 30px; padding: 35px 25px; }
           `;
 
-          // Generate Quality Buttons dynamically based on available qualities for current episode
           const qualKeys = Object.keys(epObj.qualities);
           let qualityButtonsHTML = '';
           qualKeys.forEach(q => {
@@ -369,27 +365,30 @@
             localStorage.setItem('cricxcrate_popup3_time', new Date().getTime().toString());
             this.goTelegram();
             const overlay3 = this.shadow.getElementById('overlay-3');
-            if (overlay3) overlay3.classList.0 && overlay3.classList.remove('show');
+            if (overlay3) overlay3.classList.remove('show');
           });
 
-          // Episode Switcher Handler
+          // SPA Episode Switcher (Bina Page Refresh ke Switch Hoga)
           this.shadow.querySelectorAll('.ep-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
               const selectedEp = e.target.getAttribute('data-ep');
               if (selectedEp !== this.currentEp) {
+                this.currentEp = selectedEp;
                 const targetEpObj = this.episodes[selectedEp];
-                const defaultQual = Object.keys(targetEpObj.qualities)[Object.keys(targetEpObj.qualities).length - 1];
-                window.location.search = `?ep=${selectedEp}&qual=${defaultQual}`;
+                const qualKeys = Object.keys(targetEpObj.qualities);
+                this.currentQual = qualKeys[qualKeys.length - 1]; // Default to highest quality
+                this.updatePlayerState();
               }
             });
           });
 
-          // Quality Switcher Handler
+          // SPA Quality Switcher (Bina Page Refresh ke Switch Hoga)
           this.shadow.querySelectorAll('.q-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
               const selectedQual = e.target.getAttribute('data-quality');
               if (selectedQual !== this.currentQual) {
-                window.location.search = `?ep=${this.currentEp}&qual=${selectedQual}`;
+                this.currentQual = selectedQual;
+                this.updatePlayerState();
               }
             });
           });
@@ -414,6 +413,15 @@
           this.shadow.getElementById('btn-float-tg').addEventListener('click', () => this.goTelegram());
           this.shadow.getElementById('btn-cinema').addEventListener('click', () => this.toggleCinemaMode());
           this.shadow.getElementById('btn-share').addEventListener('click', () => this.shareStream());
+        }
+
+        updatePlayerState() {
+          this.render();
+          if (this.plyrPlayer) {
+            this.plyrPlayer.destroy();
+          }
+          this.initPlayer();
+          this.initLogic();
         }
 
         closePopup1() { 
