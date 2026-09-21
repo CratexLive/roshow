@@ -18,27 +18,34 @@
           this.shadow = this.attachShadow({ mode: 'closed' });
           this.plyrPlayer = null;
           
-          this.qualities = {
-            "360p": {
-              name: "360p",
-              url: "https://dd-stream.vercel.app/download?path=6aaf56655d2099c80a47e518"
+          this.episodes = {
+            "1": {
+              title: "Family Full House with Rohit Sharma — Ep 1",
+              qualities: {
+                "360p": "https://dd-stream.vercel.app/download?path=6aaf56655d2099c80a47e518",
+                "540p": "https://dd-stream.vercel.app/download?path=6aaf56995d2099c80a47e519",
+                "720p": "https://dd-stream.vercel.app/download?path=6aaf56c55d2099c80a47e51a",
+                "1080p": "https://dd-stream.vercel.app/download?path=6aaf377d5d2099c80a47e4c2"
+              }
             },
-            "540p": {
-              name: "540p",
-              url: "https://dd-stream.vercel.app/download?path=6aaf56995d2099c80a47e519"
-            },
-            "720p": {
-              name: "720p",
-              url: "https://dd-stream.vercel.app/download?path=6ab086021c00469b455c062d"
-            },
-            "1080p": {
-              name: "1080p",
-              url: "https://dd-stream.vercel.app/download?path=6ab085fc1c00469b455c062c"
+            "2": {
+              title: "Family Full House with Rohit Sharma — Ep 2",
+              qualities: {
+                "720p": "https://dd-stream.vercel.app/download?path=6ab086021c00469b455c062d",
+                "1080p": "https://dd-stream.vercel.app/download?path=6ab085fc1c00469b455c062c"
+              }
             }
           };
 
           const urlParams = new URLSearchParams(window.location.search);
-          this.currentQual = urlParams.get('qual') || "1080p";
+          this.currentEp = urlParams.get('ep') || "1";
+          
+          const activeEpObj = this.episodes[this.currentEp] || this.episodes["1"];
+          const availableQuals = Object.keys(activeEpObj.qualities);
+          this.currentQual = urlParams.get('qual') || availableQuals[availableQuals.length - 1];
+          if (!activeEpObj.qualities[this.currentQual]) {
+            this.currentQual = availableQuals[availableQuals.length - 1];
+          }
         }
 
         connectedCallback() {
@@ -48,7 +55,8 @@
         }
 
         render() {
-          const qData = this.qualities[this.currentQual] || this.qualities["1080p"];
+          const epObj = this.episodes[this.currentEp] || this.episodes["1"];
+          const videoUrl = epObj.qualities[this.currentQual];
 
           const plyrStyleLink = document.createElement('link');
           plyrStyleLink.rel = 'stylesheet';
@@ -79,10 +87,10 @@
             }
             * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
             
-            button, .tg-card-btn, .float-tg, .btn-action, .q-btn {
+            button, .tg-card-btn, .float-tg, .btn-action, .q-btn, .ep-btn {
               transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, opacity 0.2s ease, color 0.2s ease;
             }
-            button:active, .tg-card-btn:active, .float-tg:active, .btn-action:active, .q-btn:active {
+            button:active, .tg-card-btn:active, .float-tg:active, .btn-action:active, .q-btn:active, .ep-btn:active {
               transform: scale(0.95);
             }
 
@@ -95,10 +103,12 @@
             .hero-content { display: flex; flex-direction: column; gap: 12px; max-width: 700px; }
             .hero-title { font-size: clamp(28px, 6vw, 42px); font-weight: 700; line-height: 1.15; color: var(--text-main); }
             .hero-desc { font-size: 15px; color: var(--text-muted); line-height: 1.5; }
+            
             .player-section-wrap { padding: 0 6% 30px 6%; background-color: var(--bg-cream); }
             .video-card { background: var(--card-white); border-radius: 20px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
             .video-wrap { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; }
             .plyr { --plyr-color-main: var(--accent-red); height: 100%; width: 100%; font-family: 'Inter', sans-serif; }
+            
             .video-details { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
             .video-meta-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
             .video-title-block h3 { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
@@ -109,7 +119,9 @@
             .btn-action:hover { background: #eaeaea; }
             .btn-action svg { width: 16px; height: 16px; fill: currentColor; }
 
-            .quality-group {
+            .controls-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; width: 100%; margin-top: 4px; border-top: 1px solid var(--border-color); padding-top: 16px; }
+            
+            .ep-group, .quality-group {
               display: flex;
               gap: 6px;
               background: #F4F4F4;
@@ -117,10 +129,10 @@
               padding: 4px;
               border-radius: 14px;
             }
-            .q-btn {
+            .ep-btn, .q-btn {
               background: transparent;
               border: none;
-              padding: 8px 12px;
+              padding: 8px 14px;
               border-radius: 10px;
               font-family: 'Inter', sans-serif;
               font-size: 12px;
@@ -128,7 +140,7 @@
               color: var(--text-muted);
               cursor: pointer;
             }
-            .q-btn.active {
+            .ep-btn.active, .q-btn.active {
               background: var(--text-main);
               color: #FFFFFF;
               box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -172,6 +184,13 @@
             .popup-unlock { max-width: 420px; border-radius: 30px; padding: 35px 25px; }
           `;
 
+          // Generate Quality Buttons dynamically based on available qualities for current episode
+          const qualKeys = Object.keys(epObj.qualities);
+          let qualityButtonsHTML = '';
+          qualKeys.forEach(q => {
+            qualityButtonsHTML += `<button class="q-btn ${this.currentQual === q ? 'active' : ''}" data-quality="${q}">${q}</button>`;
+          });
+
           const wrapper = document.createElement('div');
           wrapper.innerHTML = `
             <div class="hero-section">
@@ -180,7 +199,7 @@
                 <div class="live-badge"><div class="live-dot"></div> HD STREAM</div>
               </div>
               <div class="hero-content">
-                <h1 class="hero-title">Family Full House with Rohit Sharma (Ep 2)</h1>
+                <h1 class="hero-title">${epObj.title}</h1>
                 <p class="hero-desc">Watch exclusive special feature featuring Rohit Sharma and family in high definition quality.</p>
               </div>
             </div>
@@ -189,13 +208,13 @@
               <div class="video-card">
                 <div class="video-wrap">
                   <video id="main-video" playsinline controls preload="metadata">
-                    <source src="${qData.url}" type="video/mp4" size="1080" />
+                    <source src="${videoUrl}" type="video/mp4" size="1080" />
                   </video>
                 </div>
                 <div class="video-details">
                   <div class="video-meta-row">
                     <div class="video-title-block">
-                      <h3 id="ep-title">Family Full House with Rohit Sharma</h3>
+                      <h3 id="ep-title">${epObj.title}</h3>
                       <p>High Definition Stream • Zero Ads</p>
                     </div>
                     <div class="action-buttons">
@@ -205,17 +224,21 @@
                       <button class="btn-action" id="btn-share">
                         <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>Share
                       </button>
-                      
-                      <div class="quality-group">
-                        <button class="q-btn ${this.currentQual === '360p' ? 'active' : ''}" data-quality="360p">360p</button>
-                        <button class="q-btn ${this.currentQual === '540p' ? 'active' : ''}" data-quality="540p">540p</button>
-                        <button class="q-btn ${this.currentQual === '720p' ? 'active' : ''}" data-quality="720p">720p</button>
-                        <button class="q-btn ${this.currentQual === '1080p' ? 'active' : ''}" data-quality="1080p">1080p</button>
-                      </div>
 
                       <button class="btn-action" id="btn-gallery-download" style="background: linear-gradient(135deg, #0088cc, #006aab); color: #fff; border: none; display: ${this.currentQual === '1080p' ? 'flex' : 'none'};">
                         <svg viewBox="0 0 24 24" fill="#fff"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Download Video (1080p)
                       </button>
+                    </div>
+                  </div>
+
+                  <div class="controls-row">
+                    <div class="ep-group">
+                      <button class="ep-btn ${this.currentEp === '1' ? 'active' : ''}" data-ep="1">Episode 1</button>
+                      <button class="ep-btn ${this.currentEp === '2' ? 'active' : ''}" data-ep="2">Episode 2</button>
+                    </div>
+
+                    <div class="quality-group">
+                      ${qualityButtonsHTML}
                     </div>
                   </div>
                 </div>
@@ -346,28 +369,45 @@
             localStorage.setItem('cricxcrate_popup3_time', new Date().getTime().toString());
             this.goTelegram();
             const overlay3 = this.shadow.getElementById('overlay-3');
-            if (overlay3) overlay3.classList.remove('show');
+            if (overlay3) overlay3.classList.0 && overlay3.classList.remove('show');
           });
 
-          this.shadow.querySelectorAll('.q-btn').forEach(btn => {
+          // Episode Switcher Handler
+          this.shadow.querySelectorAll('.ep-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-              const selectedQual = e.target.getAttribute('data-quality');
-              if (selectedQual !== this.currentQual) {
-                window.location.search = `?qual=${selectedQual}`;
+              const selectedEp = e.target.getAttribute('data-ep');
+              if (selectedEp !== this.currentEp) {
+                const targetEpObj = this.episodes[selectedEp];
+                const defaultQual = Object.keys(targetEpObj.qualities)[Object.keys(targetEpObj.qualities).length - 1];
+                window.location.search = `?ep=${selectedEp}&qual=${defaultQual}`;
               }
             });
           });
 
-          this.shadow.getElementById('btn-gallery-download').addEventListener('click', () => {
-            const qData = this.qualities["1080p"];
-            const a = document.createElement('a');
-            a.href = qData.url;
-            a.download = `Family_Full_House_Rohit_Sharma_Ep2_1080p.mp4`;
-            a.target = '_blank';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+          // Quality Switcher Handler
+          this.shadow.querySelectorAll('.q-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const selectedQual = e.target.getAttribute('data-quality');
+              if (selectedQual !== this.currentQual) {
+                window.location.search = `?ep=${this.currentEp}&qual=${selectedQual}`;
+              }
+            });
           });
+
+          const downloadBtn = this.shadow.getElementById('btn-gallery-download');
+          if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => {
+              const epObj = this.episodes[this.currentEp];
+              const downloadUrl = epObj.qualities["1080p"];
+              const a = document.createElement('a');
+              a.href = downloadUrl;
+              a.download = `Family_Full_House_Rohit_Sharma_Ep${this.currentEp}_1080p.mp4`;
+              a.target = '_blank';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            });
+          }
 
           this.shadow.getElementById('btn-banner-tg').addEventListener('click', () => this.goTelegram());
           this.shadow.getElementById('btn-req-tg').addEventListener('click', () => this.goTelegram());
