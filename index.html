@@ -16,10 +16,25 @@
           this.shadow = this.attachShadow({ mode: 'closed' });
           this.plyrPlayer = null;
           
-          this.episode = {
-            title: "Family Full House with Rohit Sharma — Ep 4",
-            url: "https://ddstream.dpdns.org/download?path=6ab9ab59af7443bbe18a0061"
-          };
+          this.episodes = [
+            {
+              title: "Family Full House with Rohit Sharma — Ep 1",
+              url: "https://ddstream.dpdns.org/download?path=6aaf377d5d2099c80a47e4c2"
+            },
+            {
+              title: "Family Full House with Rohit Sharma — Ep 2",
+              url: "https://ddstream.dpdns.org/download?path=6aaf377d5d2099c80a47e4c2"
+            },
+            {
+              title: "Family Full House with Rohit Sharma — Ep 3",
+              url: "https://ddstream.dpdns.org/download?path=6ab9d66830fd6b0efdc99af8"
+            },
+            {
+              title: "Family Full House with Rohit Sharma — Ep 4",
+              url: "https://ddstream.dpdns.org/download?path=6ab9ab59af7443bbe18a0061"
+            }
+          ];
+          this.currentIndex = 0;
         }
 
         connectedCallback() {
@@ -29,7 +44,7 @@
         }
 
         render() {
-          const epData = this.episode;
+          const epData = this.episodes[this.currentIndex];
 
           const plyrStyleLink = document.createElement('link');
           plyrStyleLink.rel = 'stylesheet';
@@ -60,10 +75,10 @@
             }
             * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
             
-            button, .tg-card-btn, .float-tg, .btn-action {
-              transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, opacity 0.2s ease, color 0.2s ease;
+            button, .tg-card-btn, .float-tg, .btn-action, .ep-btn {
+              transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
             }
-            button:active, .tg-card-btn:active, .float-tg:active, .btn-action:active {
+            button:active, .tg-card-btn:active, .float-tg:active, .btn-action:active, .ep-btn:active {
               transform: scale(0.95);
             }
 
@@ -77,8 +92,18 @@
             .hero-title { font-size: clamp(28px, 6vw, 42px); font-weight: 700; line-height: 1.15; color: var(--text-main); }
             .hero-desc { font-size: 15px; color: var(--text-muted); line-height: 1.5; }
             
+            .episodes-section { padding: 0 6% 20px 6%; background-color: var(--bg-cream); }
+            .episodes-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+            .episodes-container::-webkit-scrollbar { display: none; }
+            .ep-btn { background: #FFFFFF; border: 1px solid var(--border-color); padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
+            .ep-btn:hover { border-color: var(--accent-red); color: var(--text-main); }
+            .ep-btn.active { background: var(--accent-red); color: #FFFFFF; border-color: var(--accent-red); box-shadow: 0 4px 12px rgba(230, 62, 62, 0.3); }
+
             .player-section-wrap { padding: 0 6% 30px 6%; background-color: var(--bg-cream); }
-            .video-card { background: var(--card-white); border-radius: 20px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+            .video-card { background: var(--card-white); border-radius: 20px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.04); transition: opacity 0.3s ease, transform 0.3s ease; }
+            .video-card.fade-out { opacity: 0; transform: scale(0.98); }
+            .video-card.fade-in { opacity: 1; transform: scale(1); }
+
             .video-wrap { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; }
             .plyr { --plyr-color-main: var(--accent-red); height: 100%; width: 100%; font-family: 'Inter', sans-serif; }
             
@@ -138,13 +163,21 @@
                 <div class="live-badge"><div class="live-dot"></div> HD STREAM</div>
               </div>
               <div class="hero-content">
-                <h1 class="hero-title">${epData.title}</h1>
+                <h1 class="hero-title" id="hero-title">${epData.title}</h1>
                 <p class="hero-desc">Watch exclusive special feature featuring Rohit Sharma and family in high definition quality.</p>
               </div>
             </div>
 
+            <div class="episodes-section">
+              <div class="episodes-container">
+                ${this.episodes.map((ep, i) => `
+                  <button class="ep-btn ${i === this.currentIndex ? 'active' : ''}" data-index="${i}">Episode ${i + 1}</button>
+                `).join('')}
+              </div>
+            </div>
+
             <div class="player-section-wrap">
-              <div class="video-card">
+              <div class="video-card fade-in" id="video-card-el">
                 <div class="video-wrap">
                   <video id="main-video" playsinline controls preload="metadata">
                     <source src="${epData.url}" type="video/mp4" size="1080" />
@@ -300,12 +333,21 @@
             if (overlay3) overlay3.classList.remove('show');
           });
 
+          this.shadow.querySelectorAll('.ep-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const newIndex = parseInt(e.currentTarget.getAttribute('data-index'));
+              if (newIndex === this.currentIndex) return;
+              this.switchEpisode(newIndex);
+            });
+          });
+
           const downloadBtn = this.shadow.getElementById('btn-gallery-download');
           if (downloadBtn) {
             downloadBtn.addEventListener('click', () => {
+              const epData = this.episodes[this.currentIndex];
               const a = document.createElement('a');
-              a.href = this.episode.url;
-              a.download = `Family_Full_House_Rohit_Sharma_Ep4_1080p.mp4`;
+              a.href = epData.url;
+              a.download = `Family_Full_House_Rohit_Sharma_Ep${this.currentIndex + 1}_1080p.mp4`;
               a.target = '_blank';
               document.body.appendChild(a);
               a.click();
@@ -318,6 +360,44 @@
           this.shadow.getElementById('btn-float-tg').addEventListener('click', () => this.goTelegram());
           this.shadow.getElementById('btn-cinema').addEventListener('click', () => this.toggleCinemaMode());
           this.shadow.getElementById('btn-share').addEventListener('click', () => this.shareStream());
+        }
+
+        switchEpisode(newIndex) {
+          const videoCard = this.shadow.getElementById('video-card-el');
+          if (videoCard) {
+            videoCard.classList.remove('fade-in');
+            videoCard.classList.add('fade-out');
+          }
+
+          setTimeout(() => {
+            this.currentIndex = newIndex;
+            const epData = this.episodes[this.currentIndex];
+
+            this.shadow.querySelectorAll('.ep-btn').forEach((b, i) => {
+              if (i === this.currentIndex) {
+                b.classList.add('active');
+              } else {
+                b.classList.remove('active');
+              }
+            });
+
+            this.shadow.getElementById('hero-title').textContent = epData.title;
+            this.shadow.getElementById('ep-title').textContent = epData.title;
+
+            const videoEl = this.shadow.getElementById('main-video');
+            if (videoEl) {
+              videoEl.innerHTML = `<source src="${epData.url}" type="video/mp4" size="1080" />`;
+              if (this.plyrPlayer) {
+                this.plyrPlayer.destroy();
+              }
+              this.initPlayer();
+            }
+
+            if (videoCard) {
+              videoCard.classList.remove('fade-out');
+              videoCard.classList.add('fade-in');
+            }
+          }, 300);
         }
 
         closePopup1() { 
