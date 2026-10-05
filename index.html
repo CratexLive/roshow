@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
   <title>Family Full House with Rohit Sharma — CricXCrate</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
@@ -15,7 +15,7 @@
           super();
           this.shadow = this.attachShadow({ mode: 'closed' });
           this.plyrPlayer = null;
-          
+
           this.episodes = [
             {
               title: "Family Full House with Rohit Sharma — Ep 1",
@@ -32,6 +32,14 @@
             {
               title: "Family Full House with Rohit Sharma — Ep 4",
               url: "https://ddstream.dpdns.org/download?path=6ab9ab59af7443bbe18a0061"
+            },
+            {
+              title: "Family Full House with Rohit Sharma — Ep 5",
+              url: "https://ddstream.dpdns.org/download?path=6ac30344c750b6506cef0ad7"
+            },
+            {
+              title: "Family Full House with Rohit Sharma — Ep 6",
+              url: "https://ddstream.dpdns.org/download?path=6ac3020cc750b6506cef0ad6"
             }
           ];
           this.currentIndex = 0;
@@ -63,8 +71,8 @@
               --text-main: #1A1A1A;
               --text-muted: #555555;
               --accent-yellow: #FFD232;
-              --accent-red: #E63E3E;
               --accent-teal: #4AC9C2;
+              --accent-dark: #333333;
               --border-color: #E0E0E0;
               display: flex;
               flex-direction: column;
@@ -85,8 +93,8 @@
             .hero-section { background-color: var(--bg-cream); padding: 40px 6%; display: flex; flex-direction: column; gap: 30px; }
             .top-bar { display: flex; justify-content: space-between; align-items: center; }
             .brand { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-main); }
-            .live-badge { display: flex; align-items: center; gap: 6px; background: rgba(230, 62, 62, 0.1); color: var(--accent-red); font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(230, 62, 62, 0.2); }
-            .live-dot { width: 6px; height: 6px; background-color: var(--accent-red); border-radius: 50%; animation: pulse 1.5s infinite; }
+            .live-badge { display: flex; align-items: center; gap: 6px; background: rgba(51, 51, 51, 0.1); color: var(--accent-dark); font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(51, 51, 51, 0.2); }
+            .live-dot { width: 6px; height: 6px; background-color: var(--accent-dark); border-radius: 50%; animation: pulse 1.5s infinite; }
             @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
             .hero-content { display: flex; flex-direction: column; gap: 12px; max-width: 700px; }
             .hero-title { font-size: clamp(28px, 6vw, 42px); font-weight: 700; line-height: 1.15; color: var(--text-main); }
@@ -96,8 +104,8 @@
             .episodes-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
             .episodes-container::-webkit-scrollbar { display: none; }
             .ep-btn { background: #FFFFFF; border: 1px solid var(--border-color); padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
-            .ep-btn:hover { border-color: var(--accent-red); color: var(--text-main); }
-            .ep-btn.active { background: var(--accent-red); color: #FFFFFF; border-color: var(--accent-red); box-shadow: 0 4px 12px rgba(230, 62, 62, 0.3); }
+            .ep-btn:hover { border-color: var(--accent-dark); color: var(--text-main); }
+            .ep-btn.active { background: var(--accent-dark); color: #FFFFFF; border-color: var(--accent-dark); box-shadow: 0 4px 12px rgba(51, 51, 51, 0.3); }
 
             .player-section-wrap { padding: 0 6% 30px 6%; background-color: var(--bg-cream); }
             .video-card { background: var(--card-white); border-radius: 20px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.04); transition: opacity 0.3s ease, transform 0.3s ease; }
@@ -105,7 +113,7 @@
             .video-card.fade-in { opacity: 1; transform: scale(1); }
 
             .video-wrap { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; }
-            .plyr { --plyr-color-main: var(--accent-red); height: 100%; width: 100%; font-family: 'Inter', sans-serif; }
+            .plyr { --plyr-color-main: var(--accent-dark); height: 100%; width: 100%; font-family: 'Inter', sans-serif; }
             
             .video-details { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
             .video-meta-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
@@ -179,8 +187,8 @@
             <div class="player-section-wrap">
               <div class="video-card fade-in" id="video-card-el">
                 <div class="video-wrap">
-                  <video id="main-video" playsinline controls preload="metadata">
-                    <source src="${epData.url}" type="video/mp4" size="1080" />
+                  <video id="main-video" playsinline controls preload="auto">
+                    <source src="${epData.url}" type="video/mp4" />
                   </video>
                 </div>
                 <div class="video-details">
@@ -287,11 +295,26 @@
             this.plyrPlayer = new Plyr(videoEl, {
               controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'pip', 'fullscreen'],
               settings: ['quality', 'speed'],
-              quality: { default: 1080, options: [1080] },
-              loadSprite: false, iconUrl: '', autoplay: false
+              quality: { default: 1080, options: [1080, 720, 480] },
+              speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] },
+              loadSprite: false, 
+              iconUrl: '', 
+              autoplay: false,
+              clickToPlay: true,
+              invertTime: false,
+              toggleInvert: true
             });
+
+            videoEl.addEventListener('error', () => {
+              console.warn("Stream error encountered, attempting reload...");
+              setTimeout(() => {
+                videoEl.load();
+                videoEl.play().catch(() => {});
+              }, 1500);
+            });
+
           } catch (e) {
-            console.error("Player error:", e);
+            console.error("Player initialization error:", e);
           }
         }
 
@@ -300,7 +323,7 @@
             const overlay = this.shadow.getElementById("overlay"); 
             if (overlay) overlay.classList.add("show"); 
           }, 4000);
-          
+
           setTimeout(() => {
             const lastShown = localStorage.getItem('cricxcrate_popup3_time');
             const now = new Date().getTime();
@@ -310,7 +333,7 @@
               const overlay3 = this.shadow.getElementById('overlay-3');
               if (overlay3) overlay3.classList.add('show');
             }
-          }, 300000); // 5 minutes timer
+          }, 300000);
 
           const triggerSecondPopup = () => {
             this.closePopup1();
@@ -386,7 +409,7 @@
 
             const videoEl = this.shadow.getElementById('main-video');
             if (videoEl) {
-              videoEl.innerHTML = `<source src="${epData.url}" type="video/mp4" size="1080" />`;
+              videoEl.innerHTML = `<source src="${epData.url}" type="video/mp4" />`;
               if (this.plyrPlayer) {
                 this.plyrPlayer.destroy();
               }
@@ -404,7 +427,7 @@
           const overlay = this.shadow.getElementById("overlay"); 
           if (overlay) overlay.classList.remove("show"); 
         }
-        
+
         closePopup2() { 
           const overlay2 = this.shadow.getElementById("overlay-2"); 
           if (overlay2) overlay2.classList.remove("show"); 
@@ -418,10 +441,20 @@
           if (overlay3) overlay3.classList.remove("show");
         }
 
-        toggleCinemaMode() {
-          if (this.plyrPlayer) { this.plyrPlayer.fullscreen.enter(); } else {
+        async toggleCinemaMode() {
+          try {
+            if (screen.orientation && screen.orientation.lock) {
+              await screen.orientation.lock('landscape').catch(() => {});
+            }
+          } catch (err) {}
+
+          if (this.plyrPlayer) {
+            this.plyrPlayer.fullscreen.enter();
+          } else {
             const videoWrapper = this.shadow.querySelector('.plyr') || this.shadow.getElementById('main-video');
-            if (videoWrapper) { if (videoWrapper.requestFullscreen) videoWrapper.requestFullscreen(); }
+            if (videoWrapper) {
+              if (videoWrapper.requestFullscreen) videoWrapper.requestFullscreen();
+            }
           }
         }
 
@@ -437,6 +470,4 @@
   <style>
     body { margin: 0; padding: 0; background: #FBF2DA; width: 100%; overflow-x: hidden; }
   </style>
-
-
 </body></html>
