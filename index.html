@@ -407,13 +407,11 @@
             this.shadow.getElementById('hero-title').textContent = epData.title;
             this.shadow.getElementById('ep-title').textContent = epData.title;
 
-            const videoEl = this.shadow.getElementById('main-video');
-            if (videoEl) {
-              videoEl.innerHTML = `<source src="${epData.url}" type="video/mp4" />`;
-              if (this.plyrPlayer) {
-                this.plyrPlayer.destroy();
-              }
-              this.initPlayer();
+            if (this.plyrPlayer) {
+              this.plyrPlayer.source = {
+                type: 'video',
+                sources: [{ src: epData.url, type: 'video/mp4' }]
+              };
             }
 
             if (videoCard) {
